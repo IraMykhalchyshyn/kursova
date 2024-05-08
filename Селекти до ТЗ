@@ -1,0 +1,57 @@
+Селекти: 
+
+- Можливість реєстрації нового користувача.
+INSERT INTO Client (First_name, Last_name, Email, Username, Password, Contacts)
+VALUES ('[First_name]', '[Last_name]', '[Email]', '[Username]', '[Password]', '[Contacts]');
+
+- Система авторизації для зареєстрованих користувачів.
+SELECT * FROM Autorization
+WHERE Username = '[Username]' AND Password = '[Password]';
+
+- Додавання нових оголошень про нерухомість.
+INSERT INTO Object (Seller_id, Description, Price, Address, Object_type, Image, Floor, Adding_date, Rooms, Area, Repair_type)
+VALUES ('[Seller_id]', '[Description]', '[Price]', '[Address]', '[Object_type]', '[Image]', '[Floor]', '[Adding_date]', '[Rooms]', '[Area]', '[Repair_type]');
+
+
+- Редагування існуючих оголошень.
+UPDATE Object
+SET Description = '[New_Description]', Price = '[New_Price]', Address = '[New_Address]', Object_type = '[New_Object_type]', Image = '[New_Image]', Floor = '[New_Floor]', Rooms = '[New_Rooms]', Area = '[New_Area]', Repair_type = '[New_Repair_type]'
+WHERE Object_id = '[Object_id]';
+
+- Видалення оголошень.
+DELETE FROM Object
+WHERE Object_id = '[Object_id]';
+
+- Можливість пошуку нерухомості за різними критеріями, такими як ціна, розмір, тип, місцезнаходження тощо.
+SELECT * FROM Object
+WHERE Price <= [max_price] AND Area >= [min_area] AND Object_type = '[object_type]' AND Address LIKE '%[search_location]%';
+
+- Фільтрація результатів пошуку за різними параметрами.
+SELECT * FROM Object
+WHERE Price <= [max_price] AND Area >= [min_area] AND Object_type = '[object_type]' AND Address LIKE '%[search_location]%'
+AND Rooms = [num_rooms] AND Floor = [floor];
+
+- Відображення докладної інформації про кожен об'єкт, включаючи опис, фотографії, ціну та контактну інформацію продавця.
+SELECT * FROM Object
+WHERE Object_id = '[object_id]';
+
+- Коментування та залишення відгуків під оголошеннями.
+INSERT INTO Review (Client_id, object_id, Text, Rating)
+VALUES ('[Client_id]', '[object_id]', '[Text]', [Rating]);
+
+- Рейтинг об'єктів нерухомості на основі популярності або користувацьких відгуків.
+SELECT object_id, AVG(Rating) AS Avg_Rating
+FROM Review
+GROUP BY object_id
+ORDER BY Avg_Rating DESC;
+
+- Можливість керування користувачами та оголошеннями для адміністратора.
+-- Зміна ролі користувача
+UPDATE Autorization
+SET Role = '[new_role]'
+WHERE Client_id = '[Client_id]';
+
+- Моніторинг та модерація вмісту, включаючи видалення небажаного контенту.
+
+DELETE FROM Content_Monitoring
+WHERE Report_id = '[Report_id]';
