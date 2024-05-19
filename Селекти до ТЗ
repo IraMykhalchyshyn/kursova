@@ -1,57 +1,169 @@
 Селекти: 
 
-- Можливість реєстрації нового користувача.
-INSERT INTO Client (First_name, Last_name, Email, Username, Password, Contacts)
-VALUES ('[First_name]', '[Last_name]', '[Email]', '[Username]', '[Password]', '[Contacts]');
+-- 1. Реєстрація нового клієнта
+INSERT INTO `Client` (`first_name`, `last_name`, `contacts`, `email`, `username`, `password`)
+VALUES ('Іван', 'Іваненко', '1234567890', 'ivan@example.com', 'ivan_user', 'securepassword');
 
-- Система авторизації для зареєстрованих користувачів.
-SELECT * FROM Autorization
-WHERE Username = '[Username]' AND Password = '[Password]';
+-- 2. Авторизація користувача
+SELECT * FROM `Client`
+WHERE `username` = 'ivan_user' AND `password` = 'securepassword';
 
-- Додавання нових оголошень про нерухомість.
-INSERT INTO Object (Seller_id, Description, Price, Address, Object_type, Image, Floor, Adding_date, Rooms, Area, Repair_type)
-VALUES ('[Seller_id]', '[Description]', '[Price]', '[Address]', '[Object_type]', '[Image]', '[Floor]', '[Adding_date]', '[Rooms]', '[Area]', '[Repair_type]');
+-- 3. Додавання нового оголошення
+INSERT INTO `Object` (`description`, `price`, `Object_type`, `Image`, `Floor`, `Adding_date`, `Rooms`, `Area`, `Repair_type`)
+VALUES ('Новий просторий будинок', 350000, 'Будинок', 'house.jpg', 2, NOW(), 5, 250, 'Капітальний ремонт');
+
+-- 4. Редагування оголошення
+UPDATE `Object`
+SET `price` = 360000, `description` = 'Оновлений просторий будинок'
+WHERE `Object_id` = 1;
+
+-- 5. Видалення оголошення
+DELETE FROM `Object`
+WHERE `Object_id` = 1;
+
+-- 6. Пошук нерухомості за ціною та типом
+SELECT * FROM `Object`
+WHERE `price` BETWEEN 100000 AND 300000
+AND `Object_type` = 'Квартира';
+
+-- 7. Фільтрація нерухомості за кількістю кімнат та площею
+SELECT * FROM `Object`
+WHERE `Rooms` >= 3 AND `Area` >= 100;
+
+-- 8. Додавання відгуку до оголошення
+INSERT INTO `Review` (`Client_id`, `Object_id`, `Text`, `Rating`, `Admin_id`)
+VALUES (1, 1, 'Відмінне місце, дуже задоволений!', 5, 1);
+
+-- 9. Отримання об'єктів нерухомості з їхнім середнім рейтингом
+SELECT o.`Object_id`, o.`description`, AVG(r.`Rating`) as average_rating
+FROM `Object` o
+JOIN `Review` r ON o.`Object_id` = r.`Object_id`
+GROUP BY o.`Object_id`
+ORDER BY average_rating DESC;
+
+-- 10. Отримання списку всіх користувачів
+SELECT * FROM `Client`;
+
+-- 11. Видалення користувача
+DELETE FROM `Client`
+WHERE `client_id` = 1;
+
+-- 12. Отримання списку всіх оголошень
+SELECT * FROM `Object`;
+
+-- 13. Видалення оголошення адміністратором
+DELETE FROM `Object`
+WHERE `Object_id` = 1;
+
+-- 14. Приклад хешування пароля (використовуйте функції вашої мови програмування, наприклад PHP, для хешування)
+UPDATE `Client`
+SET `password` = SHA2('new_secure_password', 256)
+WHERE `client_id` = 1;
+
+-- 15. отримати дані про всі апойнтменти разом з інформацією про клієнтів, агентство та об'єкти нерухомості, які були здійснені
+SELECT 
+    a.appointment_id,
+    a.description AS appointment_description,
+    a.appointment_date,
+    c.first_name AS client_first_name,
+    c.last_name AS client_last_name,
+    ag.Company_name AS agency_name,
+    s.first_name AS seller_first_name,
+    s.last_name AS seller_last_name,
+    o.description AS object_description
+FROM 
+    Appointment a
+JOIN 
+    Client c ON a.client_id = c.client_id
+LEFT JOIN 
+    Agency ag ON a.agency_id = ag.Agency_id
+JOIN 
+    Seller s ON a.seller_id = s.Seller_id
+JOIN 
+    Object o ON a.object_id = o.Object_id;
 
 
-- Редагування існуючих оголошень.
-UPDATE Object
-SET Description = '[New_Description]', Price = '[New_Price]', Address = '[New_Address]', Object_type = '[New_Object_type]', Image = '[New_Image]', Floor = '[New_Floor]', Rooms = '[New_Rooms]', Area = '[New_Area]', Repair_type = '[New_Repair_type]'
-WHERE Object_id = '[Object_id]';
 
-- Видалення оголошень.
-DELETE FROM Object
-WHERE Object_id = '[Object_id]';
+-- 16. Отримання списку всіх оголошень з даними про клієнтів, що їх переглядали
+SELECT o.*, c.first_name AS client_first_name, c.last_name AS client_last_name
+FROM `Object` o
+LEFT JOIN `Review` r ON o.Object_id = r.Object_id
+LEFT JOIN `Client` c ON r.Client_id = c.client_id;
 
-- Можливість пошуку нерухомості за різними критеріями, такими як ціна, розмір, тип, місцезнаходження тощо.
-SELECT * FROM Object
-WHERE Price <= [max_price] AND Area >= [min_area] AND Object_type = '[object_type]' AND Address LIKE '%[search_location]%';
+-- 17. Отримання середнього рейтингу для кожного об'єкта нерухомості
+SELECT o.Object_id, o.description, AVG(r.Rating) AS average_rating
+FROM `Object` o
+LEFT JOIN `Review` r ON o.Object_id = r.Object_id
+GROUP BY o.Object_id;
 
-- Фільтрація результатів пошуку за різними параметрами.
-SELECT * FROM Object
-WHERE Price <= [max_price] AND Area >= [min_area] AND Object_type = '[object_type]' AND Address LIKE '%[search_location]%'
-AND Rooms = [num_rooms] AND Floor = [floor];
+-- 18. Отримання кількості оголошень, доданих кожним агентством
+SELECT a.Agency_id, a.Company_name, COUNT(*) AS num_listings
+FROM `Agency` a
+LEFT JOIN `Appointment` ap ON a.Agency_id = ap.agency_id
+GROUP BY a.Agency_id;
 
-- Відображення докладної інформації про кожен об'єкт, включаючи опис, фотографії, ціну та контактну інформацію продавця.
-SELECT * FROM Object
-WHERE Object_id = '[object_id]';
+-- 19. Отримання найбільш активного клієнта (з найбільшою кількістю оголошень)
+SELECT c.Client_id, c.first_name, c.last_name, COUNT(*) AS num_appointments
+FROM `Client` c
+LEFT JOIN `Appointment` ap ON c.Client_id = ap.client_id
+GROUP BY c.Client_id
+ORDER BY num_appointments DESC
+LIMIT 10;
 
-- Коментування та залишення відгуків під оголошеннями.
-INSERT INTO Review (Client_id, object_id, Text, Rating)
-VALUES ('[Client_id]', '[object_id]', '[Text]', [Rating]);
+-- 20. Отримання об'єктів нерухомості, доданих певним агентством
+SELECT o.*
+FROM `Object` o
+JOIN `Appointment` ap ON o.Object_id = ap.object_id
+WHERE ap.agency_id = 6;
 
-- Рейтинг об'єктів нерухомості на основі популярності або користувацьких відгуків.
-SELECT object_id, AVG(Rating) AS Avg_Rating
-FROM Review
-GROUP BY object_id
-ORDER BY Avg_Rating DESC;
+-- 21. Вибір всіх клієнтів, які здійснили більше одного замовлення:
+SELECT * FROM Client WHERE client_id IN (
+    SELECT client_id FROM Appointment GROUP BY client_id HAVING COUNT(*) > 1
+);
 
-- Можливість керування користувачами та оголошеннями для адміністратора.
--- Зміна ролі користувача
-UPDATE Autorization
-SET Role = '[new_role]'
-WHERE Client_id = '[Client_id]';
+-- 22. Вибір всіх об'єктів нерухомості, які були переглянуті більше двох разів:
+SELECT * FROM Object WHERE Object_id IN (
+    SELECT Object_id FROM Review GROUP BY Object_id HAVING COUNT(*) > 1
+);
 
-- Моніторинг та модерація вмісту, включаючи видалення небажаного контенту.
+-- 23. Вибір усіх об'єктів нерухомості, що знаходяться на поверсі, де є об'єкти з рейтингом більше 4:
+SELECT * FROM Object WHERE Floor IN (
+    SELECT Floor FROM Object WHERE Object_id IN (
+        SELECT Object_id FROM Review GROUP BY Object_id HAVING AVG(Rating) > 4
+    )
+);
 
-DELETE FROM Content_Monitoring
-WHERE Report_id = '[Report_id]';
+-- 24. Вибір усіх клієнтів, які мають замовлення на об'єкти нерухомості типу "Квартира":
+SELECT * FROM Client WHERE client_id IN (
+    SELECT client_id FROM Appointment WHERE object_id IN (
+        SELECT Object_id FROM Object WHERE Object_type = 'Квартира'
+    )
+);
+
+-- 25. Групування за агенціями та підрахунок кількості замовлень кожної агенції:
+SELECT a.Company_name, COUNT(ap.appointment_id) AS num_appointments
+FROM Agency a
+LEFT JOIN Appointment ap ON a.Agency_id = ap.agency_id
+GROUP BY a.Agency_id;
+
+-- 26. Відображення типів ремонту та середньої площі об'єктів нерухомості, де середня площа більше 100, сортування за середньою площею у зростаючому порядку:
+SELECT Repair_type, AVG(Area) AS avg_area
+FROM Object
+GROUP BY Repair_type
+HAVING avg_area > 100
+ORDER BY avg_area ASC;
+
+-- 27. Відображення клієнтів та загальної суми їх замовлень, де загальна сума більше 500 000, сортування за сумою у зростаючому порядку:
+SELECT c.client_id, SUM(o.price) AS total_price
+FROM Client c
+LEFT JOIN Appointment ap ON c.client_id = ap.client_id
+LEFT JOIN Object o ON ap.object_id = o.Object_id
+GROUP BY c.client_id
+HAVING total_price > 50000
+ORDER BY total_price ASC;
+
+-- 28. Отримання даних про всіх продавців разом з відповідними замовленнями, включаючи тільки ті записи, де продавці вже мають призначені замовлення, сортування за датою створення замовлення у зростаючому порядку:
+SELECT s.*, a.*
+FROM Seller s
+RIGHT JOIN Appointment a ON s.Seller_id = a.seller_id
+ORDER BY a.appointment_date ASC;
