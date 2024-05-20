@@ -1,4 +1,4 @@
-CREATE DATABASE kursova;
+CREATE DATABASE kursova; 
 USE kursova;
 
 CREATE TABLE IF NOT EXISTS `Appointment` (
