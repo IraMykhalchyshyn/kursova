@@ -1,0 +1,110 @@
+CREATE DATABASE kursova;
+USE kursova;
+
+CREATE TABLE IF NOT EXISTS `Appointment` (
+	`appointment_id` int AUTO_INCREMENT NOT NULL UNIQUE,
+	`description` text NOT NULL,
+	`appointment_date` date NOT NULL,
+	`client_id` int NOT NULL,
+	`agency_id` int,
+	`seller_id` int NOT NULL,
+	`status` varchar(50) NOT NULL,
+	`admin_id` int NOT NULL,
+	`object_id` int NOT NULL,
+	PRIMARY KEY (`appointment_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `Client` (
+	`client_id` int AUTO_INCREMENT NOT NULL UNIQUE,
+	`first_name` varchar(30) NOT NULL,
+	`last_name` varchar(30) NOT NULL,
+	`contacts` varchar(20) NOT NULL,
+	`email` varchar(50) NOT NULL,
+	`username` varchar(50) NOT NULL,
+	`password` varchar(20) NOT NULL,
+	PRIMARY KEY (`client_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `Object` (
+	`Object_id` int AUTO_INCREMENT NOT NULL UNIQUE,
+	`description` text NOT NULL,
+	`price` int NOT NULL,
+	`Object_type` varchar(255) NOT NULL,
+	`Image` varchar(100) NOT NULL,
+	`Floor` int NOT NULL,
+	`Adding_date` datetime NOT NULL,
+	`Rooms` int NOT NULL,
+	`Area` float NOT NULL,
+	`Repair_type` VARCHAR(255) NOT NULL,
+	PRIMARY KEY (`Object_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `Seller` (
+	`Seller_id` int AUTO_INCREMENT NOT NULL UNIQUE,
+	`first_name` varchar(30) NOT NULL,
+	`last_name` varchar(30) NOT NULL,
+	`contacts` varchar(20) NOT NULL,
+	`email` varchar(50) NOT NULL,
+	`username` varchar(50) NOT NULL,
+	`password` varchar(20) NOT NULL,
+	PRIMARY KEY (`Seller_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `Agency` (
+	`Agency_id` int AUTO_INCREMENT NOT NULL UNIQUE,
+	`Company_name` varchar(30) NOT NULL,
+	`contacts` varchar(20) NOT NULL,
+	`email` varchar(50) NOT NULL,
+	`username` varchar(50) NOT NULL,
+	`password` varchar(20) NOT NULL,
+	PRIMARY KEY (`Agency_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `Admin` (
+	`Admin_id` int AUTO_INCREMENT NOT NULL UNIQUE,
+	`first_name` varchar(30) NOT NULL,
+	`last_name` varchar(30) NOT NULL,
+	`contacts` varchar(20) NOT NULL,
+	`email` varchar(50) NOT NULL,
+	`username` varchar(50) NOT NULL,
+	`password` varchar(20) NOT NULL,
+	PRIMARY KEY (`Admin_id`)
+);
+
+CREATE TABLE IF NOT EXISTS `Review` (
+	`Review_id` int AUTO_INCREMENT NOT NULL UNIQUE,
+	`Client_id` int NOT NULL,
+	`Object_id` int NOT NULL,
+	`Text` text NOT NULL,
+	`Rating` int NOT NULL,
+	`Admin_id` int NOT NULL,
+	PRIMARY KEY (`Review_id`)
+);
+
+-- встановлюємо налаштування щоб таблиці читали кирилицю
+ALTER DATABASE kursova CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci;
+ALTER TABLE Object CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE Object MODIFY Object_type VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+ALTER TABLE Object MODIFY Repair_type VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- зєднуємо таблиці вторинними ключами
+
+ALTER TABLE `Appointment` ADD CONSTRAINT `Appointment_fk3` FOREIGN KEY (`client_id`) REFERENCES `Client`(`client_id`);
+
+ALTER TABLE `Appointment` ADD CONSTRAINT `Appointment_fk4` FOREIGN KEY (`agency_id`) REFERENCES `Agency`(`Agency_id`);
+
+ALTER TABLE `Appointment` ADD CONSTRAINT `Appointment_fk5` FOREIGN KEY (`seller_id`) REFERENCES `Seller`(`Seller_id`);
+
+ALTER TABLE `Appointment` ADD CONSTRAINT `Appointment_fk7` FOREIGN KEY (`admin_id`) REFERENCES `Admin`(`Admin_id`);
+
+ALTER TABLE `Appointment` ADD CONSTRAINT `Appointment_fk8` FOREIGN KEY (`object_id`) REFERENCES `Object`(`Object_id`);
+
+
+
+ALTER TABLE `Review` ADD CONSTRAINT `Review_fk1` FOREIGN KEY (`Client_id`) REFERENCES `Client`(`client_id`);
+
+ALTER TABLE `Review` ADD CONSTRAINT `Review_fk2` FOREIGN KEY (`Object_id`) REFERENCES `Object`(`Object_id`);
+
+ALTER TABLE `Review` ADD CONSTRAINT `Review_fk5` FOREIGN KEY (`Admin_id`) REFERENCES `Admin`(`Admin_id`);
+
+
